@@ -5,7 +5,7 @@ import json
 import string
 
 #bioObj_ref = "/chenry/public/modelsupport/biochemistry/plantdefault.biochem" #PMS reference
-biochem_ref = "48/8/1" #AppDev reference
+biochem_ref = "48/1/5" #AppDev reference NB: doesn't work in production!
 
 ############################
 ## Load Additional Curation
@@ -45,14 +45,15 @@ with open("Unbalanced_Reactions_to_Fix.txt") as exc_rxn_fh:
     for line in exc_rxn_fh.readlines():
         line=line.rstrip('\r\n')
         excepted_reactions_list.append(line)
-print(excepted_reactions_list)
+print("Including unbalanced reactions: "+", ".join(excepted_reactions_list))
 
 ############################
 ## Load Biochemistry
 ############################
 
 MSD_git_url = "https://raw.githubusercontent.com/ModelSEED/ModelSEEDDatabase/"
-MSD_commit = "v1.1.1"
+#MSD_commit = "v1.1.1"
+MSD_commit = "7063bbffde4b40c01550dcb48b89107f28caa2b1" #adding_nad_transporters
 
 biochemistry_reactions = json.load(urlopen(MSD_git_url+MSD_commit+"/Biochemistry/reactions.json"))
 reactions_dict=dict()
@@ -80,8 +81,11 @@ for compound in biochemistry_compounds:
 
     compounds_dict[compound['id']]=template_compound_hash
 
-#Collect compartments
-remote_file = urlopen(MSD_git_url+MSD_commit+"/Templates/Plant/Compartments.tsv")
+#Collect compartments: NB The location will change
+MST_git_url = "https://raw.githubusercontent.com/ModelSEED/ModelSEEDTemplates/"
+MST_commit = "main"
+MST_compartment_file = "/Legacy%20Templates/Plant/Compartments.tsv"
+remote_file = urlopen(MST_git_url+MST_commit+MST_compartment_file)
 compartments = dict()
 header=1
 for line in remote_file.readlines():
@@ -160,7 +164,7 @@ for rxn_cpx_id in sorted(curated_complexes.keys()):
         complexes[tmpl_rxn][complex].append(role_entry['role'])
 
 # Load Rest of Complexes
-for tmpl_rxn in reactions_roles:
+for tmpl_rxn in sorted(reactions_roles):
     if(tmpl_rxn in complexes):
         continue
 
@@ -238,7 +242,7 @@ check_tpl_cpcpd_dict = dict()
 template_compcompounds = list()
 
 excluded_rxns_fh = open("Excluded_Reactions.txt","w")
-for template_reaction in reactions_roles:
+for template_reaction in sorted(reactions_roles):
 
     [base_reaction,reaction_cpts]=template_reaction.split('_')
 
@@ -300,9 +304,13 @@ for template_reaction in reactions_roles:
     if(base_reaction in limited_gf_reactions_list):
         gapfilling_direction = direction
 
+    # NB: I'm using the empty reaction as a default reaction ref as it doesn't really affect anything
+    # But I need to double-check how reconstruct_plant_metabolism in plant_fbaImpl.py fetches
+    # biochemistry data
+
     template_reaction_hash = { 'id':base_reaction+"_"+reaction_cpt_id, 'name':reactions_dict[base_reaction]['name'],
                                'templatecompartment_ref':"~/compartments/id/"+reaction_cpt_id,
-                               'reaction_ref':biochem_ref+"/reactions/id/"+base_reaction,
+                               'reaction_ref':biochem_ref+"/reactions/id/"+"rxn14003", #base_reaction,
                                'type':"universal",
                                'direction':direction,
                                'GapfillDirection':gapfilling_direction,
@@ -352,7 +360,7 @@ for template_reaction in reactions_roles:
             complex_string = "~/complexes/id/"+complex
             template_reaction_hash['templatecomplex_refs'].append(complex_string)
 
-#    print(template_reaction_hash['id'])
+    # print(template_reaction_hash['id'])
     if(template_reaction_hash['id'] == "rxn00533_d"):
         for cpx_ref in template_reaction_hash['templatecomplex_refs']:
             cpx_id = cpx_ref.split("/")[-1]
@@ -362,8 +370,8 @@ for template_reaction in reactions_roles:
                         role_id = role_ref['templaterole_ref'].split('/')[-1]
                         for role in template_roles:
                             if(role['id'] == role_id):
-                                print(template_reaction_hash['id'],cpx_id,role_id,role['name'],role['features'])
-
+                                #print(template_reaction_hash['id'],cpx_id,role_id,role['name'],role['features'])
+                                pass
     template_reactions.append(template_reaction_hash)
 
 #Populate model_template dictionary
@@ -374,9 +382,9 @@ model_template={ 'id' : "Plant",
                 'type' : "GenomeScale",
                 'biochemistry_ref' : biochem_ref,
                 
-                'compartments' : template_compartments,
-                'compounds' : template_compounds, 
-                'compcompounds' : template_compcompounds, 
+                'compartments' : sorted(template_compartments, key = lambda cpt:cpt['id']),
+                'compounds' : sorted(template_compounds, key = lambda cpd:cpd['id']), 
+                'compcompounds' : sorted(template_compcompounds, key = lambda ccpd:ccpd['id']),
                 
                 'reactions' : template_reactions, 
                 'roles' : template_roles, 
