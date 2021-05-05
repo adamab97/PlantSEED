@@ -1,0 +1,32 @@
+Read Me: (Adamab97 input)
+
+All work was performed on a Macintosh computer running MacOS Big Sur
+
+link to my paper on the PlantSEED coverage of primary metabolism: https://docs.google.com/document/d/15PCn8KPJgEySWkhanMuoqY4x2FNe2lVvIz5xBW0iKUY/edit?usp=sharing
+
+
+My work in the past few months utilizes a program called Kbase, also known as The Department of Energy Systems Biology Knowledgebase (KBase) which is a software and data science platform designed to meet the challenges of systems biology: predicting and designing biological function. As well as Modelseed, which is a database that models primary metaobolism for a number of important organisms. KBase utilizes the models inside modelseed for data manipulation and Flux Balance Analysis.
+
+
+Flux balance analysis (FBA) is a mathematical method for simulating metabolism in genome-scale reconstructions of metabolic networks. In comparison to traditional methods of modeling, FBA is less intensive in terms of the amount of input data required for constructing the model. Simulations performed using FBA are computationally inexpensive and can calculate steady-state metabolic fluxes for large models (over 2000 reactions) in a few seconds on modern personal computers.
+
+
+Arabidopsis Thalania is the model organism that all other species models in PlantSEED are derived from. It is an extremely easy organism to do research on, due to its weed like properties. It grows extremely quickly and is ripe for modification, as it does not protest to nutrient manipulation.
+
+
+We are always making additions to the database to increase the accuracy of models produced. We utilize previous publications of curated gene localization as well as enzymatic functions to add to the model. We do not physically do the curation research ourselves, but moreso create a database of curated genetic information that Kbase utilizes to produce increasingly accurate models
+The general flow of my new information additions to the PlantSEED database is as follows: 
+	1. Assigned new role or pathway to gather curated information on
+	2. Do research: find previously published articles that validate the information trying to be added to the database
+	3. Write a tab seperated "flat file" that contains this curated information to be added. Create a new line for each piece of information to be added. The are 3 example flat files within this fork.
+	4. Find spot within the .json file where the new information is to be added. Make note of the syntax required to make the addition without disrupting the surrounding code. You may have to look for a similar section of the file in order to understand the neccessary syntax.
+	5. Create script to add new information to the .json file. There should be 3 example scripts within this fork. This can be tricky, but once you see it a few times, it starts to make sense. I have added comments to each script to summarize the usefulness of each line. I am reachable at adamab97@gmail.com if you get stuck. 
+	6. Once the new information has been added at your local level, it must then be committed and pushed to your fork on github. This allows for others to see your work, as well as keeps a running record of previous submissions. This serves two purposes. Any previous version of the repository may be accessed for referenced. Also, it allows for a structure where any change added can not completely tank the system. Samuel Seaver will go over this in detail with you once you set up your own github account. I recommend getting the desktop version of github, it makes everything easier.
+
+
+ModelSEED In accordance with Kbase allows us to compare species with an application called orthofinder (within kbase). Orthofinder gives us results of how closely another species relates to arabadopsis in its biochemisty. The result of orthofinder will be a graph. Samuel Seaver will go into this with you further.
+
+
+Species comparison graphs poses the biggest issue with the current plantSEED repository. As of now, we are only able to compare other species or types of organisms to that of Arabidopsis directly. This is known as a 1-to-many species comparison approach. It would be much more beneficial to have a many-to-many comparison approach. However this would require a complete restructure of PlantSEED. Right now Arabidopsis is the model organism that all other models in plantSEED are derived from, however a structure with multiple model organisms would be optimal to ensure the most comprehensive models possible.
+
+
